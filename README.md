@@ -4,73 +4,44 @@
 
 **Team:** The Gradient Descenters
 
-**Status:** Completed (December 16, 2025) 
+**Status:** Completed (December 16, 2025)
 
 ---
 
 ## 🧭 Project Overview
 
-Welcome to the **Iron-Guts Hospital**! This project tackles the second challenge of the AN2DL course: a multi-class image classification task to identify molecular subtypes in microscopic human tissue. 
+Welcome to the **Iron-Guts Hospital**! This project tackles the second challenge of the AN2DL course: a multi-class image classification task to identify molecular subtypes in microscopic human tissue.
 
-The dataset consists of RGB images paired with binary masks highlighting regions of interest. Our goal was to classify each sample into one of four categories, aiding the "orc surgeons" in their prognosis. 
+The dataset consists of RGB images paired with binary masks highlighting regions of interest. Our goal was to classify each sample into one of four categories, aiding the "orc surgeons" in their prognosis.
 
-**The Challenge:**
+### The Challenge
 
 * **Input:** Low-magnification Whole Slide Images (WSI) + Binary Masks.
-* 
-**Task:** Classify tissue into `Luminal A`, `Luminal B`, `HER2(+)`, or `Triple negative`. 
-
-
-* 
-**Constraint:** The dataset contained "Shrek" images, duplicates, and artifacts that required rigorous cleaning. 
-
-
+* **Task:** Classify tissue into `Luminal A`, `Luminal B`, `HER2(+)`, or `Triple negative`.
+* **Constraint:** The dataset contained "Shrek" images, duplicates, and artifacts that required rigorous cleaning.
 
 ---
 
-## 👥 The Team
+## 🧹 Dataset & Cleaning
 
-**Alberto Occhipinti**
-**Giulia Putelli**
-**Matteo Morini** 
-**Tommaso Rossetti** 
+The original dataset contained 691 training pairs. However, an initial inspection revealed critical quality issues.
 
-
-
----
-
-## 📂 Dataset & Cleaning
-
-The original dataset contained 691 training pairs. However, an initial inspection revealed critical quality issues. 
-
-### 🧹 Data Cleaning Pipeline
+### Data Cleaning Pipeline
 
 We implemented a strict cleaning protocol to remove noise:
 
-1. 
-**"Shrek" Removal:** We used MD5 hashing on masks to detect and remove 60 non-informative images containing cartoon characters. 
+1. **"Shrek" Removal:** We used MD5 hashing on masks to detect and remove 60 non-informative images containing cartoon characters.
+2. **Artifact Removal:** We manually removed 50 duplicated images containing mucosa-like artifacts.
+3. **Result:** The final valid training set was reduced to **581 images**.
 
-
-2. 
-**Artifact Removal:** We manually removed 50 duplicated images containing mucosa-like artifacts. 
-
-
-3. 
-**Result:** The final valid training set was reduced to **581 images**. 
-
-
-
-### 📊 Class Distribution
+### Class Distribution
 
 The dataset (after cleaning) remained imbalanced:
 
 * **Luminal B:** ~34.4%
 * **HER2(+):** ~29.3%
 * **Luminal A:** ~26.2%
-* 
-**Triple negative:** ~10.1% 
-
-
+* **Triple negative:** ~10.1%
 
 ---
 
@@ -80,25 +51,21 @@ Our final solution moved away from standard whole-image classification, which yi
 
 ### 1. Patch Extraction Strategy
 
-Instead of resizing the full image (which loses detail) or using raw masks (which confuses the model with background noise), we extracted patches based on the mask geometry. * **Method:** For each connected white region in the mask, we extracted a bounding box from the original RGB image. 
+Instead of resizing the full image (which loses detail) or using raw masks (which confuses the model with background noise), we extracted patches based on the mask geometry.
 
-* 
-**Filtering:** Patches smaller than 200 pixels were discarded to reduce noise. 
-
-
+* **Method:** For each connected white region in the mask, we extracted a bounding box from the original RGB image.
+* **Filtering:** Patches smaller than 200 pixels were discarded to reduce noise.
 
 ### 2. Model Architecture
 
-We utilized **Transfer Learning** with a **ConvNeXt-Tiny** backbone.  * **Optimizer:** `Lion` (outperformed AdamW). 
+We utilized **Transfer Learning** with a **ConvNeXt-Tiny** backbone.
 
-* 
-**Loss Function:** Weighted Cross-Entropy (to handle class imbalance). 
-
-
+* **Optimizer:** `Lion` (outperformed AdamW).
+* **Loss Function:** Weighted Cross-Entropy (to handle class imbalance).
 
 ### 3. Training Strategy: Progressive Unfreezing
 
-To prevent catastrophic forgetting, we fine-tuned the model in stages: 
+To prevent catastrophic forgetting, we fine-tuned the model in stages:
 
 1. **Stage 1:** Train only the classifier head (backbone frozen).
 2. **Stage 2:** Unfreeze the last 2 backbone blocks every 20 epochs.
@@ -110,7 +77,7 @@ To prevent catastrophic forgetting, we fine-tuned the model in stages:
 
 The model was evaluated using the macro **F1-Score**.
 
-Our data-centric approach (cleaning + patching) yielded a **17-point improvement** over the baseline. 
+Our data-centric approach (cleaning + patching) yielded a **17-point improvement** over the baseline.
 
 | Model Configuration | F1 Score (%) |
 | --- | --- |
@@ -120,11 +87,6 @@ Our data-centric approach (cleaning + patching) yielded a **17-point improvement
 | + ConvNeXt-Tiny + Lion | 39.0 |
 | + Progressive Unfreezing | 42.31 |
 | **+ Patch Filtering (Final)** | **42.84** |
-| 
-
- |  |
-
----
 
 ## 🛠️ Repository Structure
 
