@@ -2,10 +2,6 @@
 
 **Course:** Artificial Neural Networks and Deep Learning (Politecnico di Milano)
 
-**Team:** The Gradient Descenters
-
-**Status:** Completed (December 16, 2025)
-
 ---
 
 ## 🧭 Project Overview
